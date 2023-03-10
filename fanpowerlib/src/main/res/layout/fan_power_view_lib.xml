@@ -180,7 +180,7 @@
                 android:fontFamily="@font/outfit_semibold"
                 />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/go"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
@@ -246,7 +246,7 @@
                 android:textSize="42dp" />
 
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:id="@+id/twitterBtn"
@@ -258,7 +258,7 @@
                 android:background="@drawable/twitter_btn"
                 android:foreground="?android:attr/selectableItemBackground" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:id="@+id/facebookBtn"
@@ -270,7 +270,7 @@
                 android:background="@drawable/facebook_btn"
                 android:foreground="?android:attr/selectableItemBackground" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:id="@+id/smsBtn"

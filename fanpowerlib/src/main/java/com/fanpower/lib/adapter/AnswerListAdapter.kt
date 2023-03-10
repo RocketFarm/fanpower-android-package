@@ -9,7 +9,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.fan.fanpagelib.R
+import com.fanpower.lib.R
 
 
 import com.fanpower.lib.api.model.Pick

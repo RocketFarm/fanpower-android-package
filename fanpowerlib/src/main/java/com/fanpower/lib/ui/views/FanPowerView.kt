@@ -20,8 +20,8 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import com.fan.fanpagelib.R
-import com.fan.fanpagelib.databinding.FanPowerViewLibBinding
+
+import com.fanpower.lib.R
 
 
 import com.fanpower.lib.adapter.ViewPagerAdapter
@@ -31,6 +31,7 @@ import com.fanpower.lib.api.model.MessageResponse
 import com.fanpower.lib.api.model.Prop
 import com.fanpower.lib.api.model.Publisher
 import com.fanpower.lib.api.model.ReferralResponse
+import com.fanpower.lib.databinding.FanPowerViewLibBinding
 import com.fanpower.lib.interfaces.SuccessFailureCallback
 import com.fanpower.lib.interfaces.VerificationPopUpShownCallback
 import com.fanpower.lib.ui.fragment.QuestionsFragment

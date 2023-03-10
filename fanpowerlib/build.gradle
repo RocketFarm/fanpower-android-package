@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.fan.fanpagelib'
+    namespace 'com.fanpower.lib'
     compileSdk 33
 
     defaultConfig {

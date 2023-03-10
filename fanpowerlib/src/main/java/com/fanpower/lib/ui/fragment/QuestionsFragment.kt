@@ -16,12 +16,13 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.fan.fanpagelib.R
-import com.fan.fanpagelib.databinding.FragmentQuestionsBinding
+import com.fanpower.lib.R
+
 
 import com.fanpower.lib.adapter.AnswerListAdapter
 import com.fanpower.lib.api.ApiManager
 import com.fanpower.lib.api.model.*
+import com.fanpower.lib.databinding.FragmentQuestionsBinding
 import com.fanpower.lib.interfaces.*
 import com.fanpower.lib.utils.Constants.Extra.PropExtra
 import com.fanpower.lib.utils.Constants.Generic.PostPickAdId

@@ -2,8 +2,8 @@ package com.fanpower.lib.ui.activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.fan.fanpagelib.R
-import com.fan.fanpagelib.databinding.ActivityTestBinding
+import com.fanpower.lib.R
+import com.fanpower.lib.databinding.ActivityTestBinding
 
 
 class TestActivity : AppCompatActivity() {
