@@ -13,11 +13,13 @@ class MainActivity : AppCompatActivity() {
 
         var fanPowerView = findViewById<FanPowerView>(R.id.fanPowerView)
 
-        fanPowerView.initView("your-tokenForJwtRequest",
+        fanPowerView.initView(
+            "your-tokenForJwtRequest",
             arrayOf(0, 0), // replace with your list of prop IDs.  Can be a list of a single ID.
             0, // your-publisherId
             "your-publisherToken",
             "your-shareUrl",
-            this)
+            this
+        )
     }
 }

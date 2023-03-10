@@ -169,6 +169,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
                     Log.i(TAG, "onSuccess: list size " + list.size)
                     for (x in list) {
                         for ((index, value) in prop.picks.withIndex()) {
+                       //     Log.i(TAG, "onSuccess: prop id to compare "+ value.id)
                             if(x.pick_id.toString().equals(value.id)){
                                 Log.i(TAG, "onSuccess: found at index " + index)
                                 adapter.selectedIndex = index
