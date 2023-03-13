@@ -2,6 +2,7 @@ package com.fanpower.lib.utils
 
 import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.res.Resources
 import android.net.ConnectivityManager
@@ -10,8 +11,11 @@ import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import java.net.Inet4Address
 import java.net.NetworkInterface
+import java.security.AccessController.getContext
 
 
 class Utilities {
@@ -26,9 +30,9 @@ class Utilities {
             return (px / Resources.getSystem().displayMetrics.density).toInt()
         }
 
-        fun isOnline(context: Activity): Boolean {
+        fun isOnline(context: Context): Boolean {
             val connectivityManager =
-                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             if (connectivityManager != null) {
                 val capabilities =
                     connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
@@ -77,13 +81,33 @@ class Utilities {
 //            return ""
 //        }
 
-        fun openUrl(context: Activity,url : String){
+        fun openUrl(context: Context,url : String){
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(browserIntent)
+            context?.startActivity(browserIntent)
         }
 
 
+        fun getActivity(view: View): Activity? {
+            var context = view.context
+            while (context is ContextWrapper) {
+                if (context is Activity) {
+                    return context
+                }
+                context = context.baseContext
+            }
+            return null
+        }
 
+//        private fun getActivity(): Activity? {
+//            var context: Context? = getContext()
+//            while (context is ContextWrapper) {
+//                if (context is Activity) {
+//                    return context
+//                }
+//                context = context.baseContext
+//            }
+//            return null
+//        }
 
 
     }

@@ -1,6 +1,7 @@
 package com.fanpower.lib.ui.views
 
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -18,7 +19,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 
 import com.fanpower.lib.R
@@ -51,7 +54,9 @@ class FanPowerView : RelativeLayout {
 
     private var binding: FanPowerViewLibBinding
 
-    private lateinit var activity: FragmentActivity
+    private lateinit var fragmentManager : FragmentManager
+  //  private  var activity: Activity? = null
+//    private lateinit var context : Context
 
     private lateinit var propIds: Array<Int>
     private var publisherId: Int = 0
@@ -93,14 +98,16 @@ class FanPowerView : RelativeLayout {
         publisherId: Int,
         publisherToken: String,
         shareUrl: String,
-        activity: FragmentActivity
+        fragmentManager : FragmentManager
     ) {
-        this.activity = activity
+      //  this.activity = Utilities.getActivity(this)
+     //   this.context = context
         this.tokenForJwtRequest = tokenForJwtRequest
         this.propIds = propIds
         this.publisherId = publisherId
         this.shareUrl = shareUrl
         this.publisherToken = publisherToken
+        this.fragmentManager = fragmentManager
 
         SharedPrefs.Utils.saveAdminToken(context, publisherToken)
         SharedPrefs.Utils.savePublisherId(context, publisherId)
@@ -109,10 +116,10 @@ class FanPowerView : RelativeLayout {
         SharedPrefs.Utils.saveTokenForJWTRequest(context, tokenForJwtRequest)
         SharedPrefs.Utils.saveSourceUrl(context, this.shareUrl)
 
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        Utilities.getActivity(this)?.getWindow()?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
 
-        if(SharedPrefs.Utils.getIsFirstRun(activity)){
+        if(SharedPrefs.Utils.getIsFirstRun(context)){
             binding.popupBg.visibility = VISIBLE
         }else{
             binding.popupBg.visibility = GONE
@@ -127,9 +134,9 @@ class FanPowerView : RelativeLayout {
 
     private fun setUpBtns() {
         binding.go.setOnClickListener {
-            SharedPrefs.Utils.saveIsFirstRun(activity,false)
+            SharedPrefs.Utils.saveIsFirstRun(context,false)
             Log.i(TAG, "setupViewPager: onclick")
-            val fadeOutAnim = AnimationUtils.loadAnimation(activity, R.anim.fade_out)
+            val fadeOutAnim = AnimationUtils.loadAnimation(context, R.anim.fade_out)
             binding.popupBg.startAnimation(fadeOutAnim)
 
             fadeOutAnim.setAnimationListener(object : Animation.AnimationListener {
@@ -150,10 +157,10 @@ class FanPowerView : RelativeLayout {
 
         binding.shareBtn.setOnClickListener {
             binding.sharePopup.visibility = View.VISIBLE
-            val slideUpAnim = AnimationUtils.loadAnimation(activity, R.anim.slide_up_animaton)
+            val slideUpAnim = AnimationUtils.loadAnimation(context, R.anim.slide_up_animaton)
             binding.sharePopUpCard.startAnimation(slideUpAnim)
 
-            val fadeInAnim = AnimationUtils.loadAnimation(activity, R.anim.fade_in)
+            val fadeInAnim = AnimationUtils.loadAnimation(context, R.anim.fade_in)
             binding.bgTintShare.visibility = VISIBLE
             binding.bgTintShare.startAnimation(fadeInAnim)
 
@@ -161,12 +168,14 @@ class FanPowerView : RelativeLayout {
         }
         getReferrals()
 
+
+
         binding.termsAndConditionBtn.setOnClickListener {
-            Utilities.openUrl(activity, "https://fanpower.io/terms/")
+            Utilities.openUrl(context, "https://fanpower.io/terms/")
         }
 
         binding.learnMoreBtn.setOnClickListener {
-            Utilities.openUrl(activity, "https://fanpower.io")
+            Utilities.openUrl(context, "https://fanpower.io")
         }
 
         binding.facebookBtn.setOnClickListener {
@@ -187,7 +196,7 @@ class FanPowerView : RelativeLayout {
             intent.type = "text/plain"
             intent.putExtra(Intent.EXTRA_TEXT, urlToShare)
             var facebookAppFound = false
-            val matches: List<ResolveInfo> = activity.getPackageManager().queryIntentActivities(intent, 0)
+            val matches: List<ResolveInfo> = context.getPackageManager()!!.queryIntentActivities(intent, 0)
             for (info in matches) {
                 if (info.activityInfo.packageName.lowercase(Locale.getDefault())
                         .startsWith("com.facebook.katana")
@@ -202,7 +211,7 @@ class FanPowerView : RelativeLayout {
                 intent = Intent(Intent.ACTION_VIEW, Uri.parse(sharerUrl))
             }
 
-            activity.startActivity(intent)
+            context.startActivity(intent)
         }
 
         binding.twitterBtn.setOnClickListener {
@@ -224,12 +233,12 @@ class FanPowerView : RelativeLayout {
                 tweetIntent.data =
                     Uri.parse("https://twitter.com/intent/tweet?text=" + title + " &url= " + url)
                 tweetIntent.putExtra(Intent.EXTRA_TEXT, "your message")
-                activity.startActivity(tweetIntent)
+                context.startActivity(tweetIntent)
             } catch (e: ActivityNotFoundException) {
                 val tweetIntent = Intent(Intent.ACTION_VIEW)
                 tweetIntent.data =
                     Uri.parse("https://twitter.com/intent/tweet?text=" + title + " &url= " + url)
-                activity.startActivity(tweetIntent)
+                context.startActivity(tweetIntent)
             }
         }
 
@@ -243,11 +252,11 @@ class FanPowerView : RelativeLayout {
             val smsIntent = Intent(Intent.ACTION_SENDTO)
             smsIntent.data = Uri.parse("smsto:")
             smsIntent.putExtra("sms_body", title + " " + urlToShare + "#makeyourpick ")
-            activity.startActivity(smsIntent)
+            context.startActivity(smsIntent)
         }
 
         binding.crossBtn.setOnClickListener {
-            val fadeOutAnim = AnimationUtils.loadAnimation(activity, R.anim.fade_out)
+            val fadeOutAnim = AnimationUtils.loadAnimation(context, R.anim.fade_out)
             binding.sharePopup.startAnimation(fadeOutAnim)
 
             fadeOutAnim.setAnimationListener(object : Animation.AnimationListener {
@@ -313,12 +322,12 @@ class FanPowerView : RelativeLayout {
     }
 
     private fun setupViewPager() {
-        if (activity.isFinishing) {
+        if (Utilities.getActivity(this)?.isFinishing == true) {
             return
         }
         //  setUpDummyData()
 
-        var adapter = ViewPagerAdapter(activity.supportFragmentManager)
+        var adapter = ViewPagerAdapter(fragmentManager)
 
         // LoginFragment is the name of Fragment and the Login
         // is a title of tab
@@ -373,9 +382,9 @@ class FanPowerView : RelativeLayout {
         if (SharedPrefs.Utils.getAuthToken(context) != null) {
             getPublisherDataFromServer()
         } else {
-            ApiManager.getAuthToken(activity, object : SuccessFailureCallback {
+            ApiManager.getAuthToken(context, object : SuccessFailureCallback {
                 override fun onSuccess() {
-                    if (activity == null) {
+                    if (context == null) {
                         return
                     }
                     getPublisherDataFromServer()
@@ -383,11 +392,11 @@ class FanPowerView : RelativeLayout {
                 }
 
                 override fun onFailure(messageResponse: MessageResponse) {
-                    if (activity == null) {
+                    if (context == null) {
                         return
                     }
                     if (messageResponse != null) {
-                        activity?.runOnUiThread {
+                        Utilities.getActivity(rootView)?.runOnUiThread {
                             Toast.makeText(context, messageResponse.message, Toast.LENGTH_SHORT)
                                 .show()
                         }
@@ -398,7 +407,7 @@ class FanPowerView : RelativeLayout {
     }
 
     private fun getIPLocationApi() {
-        ApiManager.getIPLocation(activity, object : SuccessFailureCallback {
+        ApiManager.getIPLocation(context, object : SuccessFailureCallback {
             override fun onSuccess() {
 
             }
@@ -417,9 +426,9 @@ class FanPowerView : RelativeLayout {
 //            getProps()
 //        }else {
 
-        ApiManager.getPublisher(activity, object : SuccessFailureCallback {
+        ApiManager.getPublisher(context, object : SuccessFailureCallback {
             override fun onSuccess() {
-                if (activity == null) {
+                if (context == null) {
                     return
                 }
                 publisher = SharedPrefs.Utils.getPublisher(context, Publisher::class.java)
@@ -427,7 +436,7 @@ class FanPowerView : RelativeLayout {
                     randerUiWithPublisher()
                     getProps()
                     if (SharedPrefs.Utils.isLoggedIn(context)) {
-                        ApiManager.getFanProfile(activity)
+                        ApiManager.getFanProfile(context)
                     }
                 }
             }
@@ -441,7 +450,7 @@ class FanPowerView : RelativeLayout {
 
 
     private fun getProps() {
-        if (!Utilities.isOnline(activity)) {
+        if (!Utilities.isOnline(context)) {
             return
         }
 
@@ -501,7 +510,7 @@ class FanPowerView : RelativeLayout {
       //  Log.i(TAG, "addDots: props size " + props.size)
         for (i in 0 until props.size) {
             Log.i(TAG, "addDots: in dots loop")
-            val dot = ImageView(activity)
+            val dot = ImageView(context)
             dot.setImageDrawable(resources.getDrawable(R.drawable.dots_unselected))
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -542,6 +551,6 @@ class FanPowerView : RelativeLayout {
     }
 
     public fun logout(){
-        SharedPrefs.Utils.saveFanId(activity,null)
+        SharedPrefs.Utils.saveFanId(context,null)
     }
 }

@@ -1,6 +1,7 @@
 package com.fanpower.lib.api
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import com.fanpower.lib.api.model.*
 import com.fanpower.lib.interfaces.AdsCallback
@@ -20,7 +21,7 @@ class ApiManager {
 
         private val TAG = "ApiManager"
 
-        fun getAuthToken(context: Activity, successFailureCallback: SuccessFailureCallback) {
+        fun getAuthToken(context: Context, successFailureCallback: SuccessFailureCallback) {
 
             if (!Utilities.isOnline(context)) {
                 successFailureCallback.onFailure(MessageResponse("No working internet connection."))
@@ -51,7 +52,7 @@ class ApiManager {
             })
         }
 
-        fun getIPLocation(context: Activity, successFailureCallback: SuccessFailureCallback) {
+        fun getIPLocation(context: Context, successFailureCallback: SuccessFailureCallback) {
             var ipAddress = Utilities.getIpv4HostAddress()
          //   ipAddress = "69.180.241.210" //TODO remove this
             val responseExpenseCategorys: Call<IPAddressResponse> = ApiFactory.getInstance()!!
@@ -79,7 +80,7 @@ class ApiManager {
             })
         }
 
-        fun getPublisher(context: Activity, successFailureCallback: SuccessFailureCallback) {
+        fun getPublisher(context: Context, successFailureCallback: SuccessFailureCallback) {
             if (!Utilities.isOnline(context)) {
                 successFailureCallback.onFailure(MessageResponse("No working internet connection."))
                 return
@@ -234,7 +235,7 @@ class ApiManager {
 
         }
 
-        fun getFanProfile(context: Activity) {
+        fun getFanProfile(context: Context) {
             val fanId = SharedPrefs.Utils.getFanId(context)
             val publisherToken = SharedPrefs.Utils.getPublisherToken(context)
 
