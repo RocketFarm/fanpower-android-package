@@ -1,7 +1,7 @@
 package com.fanpower.lib.ui.fragment
 
+
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
@@ -17,8 +17,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fanpower.lib.R
-
-
 import com.fanpower.lib.adapter.AnswerListAdapter
 import com.fanpower.lib.api.ApiManager
 import com.fanpower.lib.api.model.*
@@ -31,6 +29,7 @@ import com.fanpower.lib.utils.Constants.Generic.VerifyAdId
 import com.fanpower.lib.utils.SharedPrefs
 import com.fanpower.lib.utils.Utilities
 import com.squareup.picasso.Picasso
+import com.squareup.picasso.Transformation
 
 class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fragment() {
 
@@ -89,6 +88,10 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
         if (!SharedPrefs.Utils.getFanId(requireActivity()).isNullOrEmpty()) {
             getFanPicks()
         }
+
+        binding.resendCodeText.setTextColor(SharedPrefs.Utils.getSecondaryColor(requireActivity()))
+        binding.verifyTitle.setTextColor(SharedPrefs.Utils.getTextLinkColor(requireActivity()))
+        Utilities.getVerifyTitleBackground(binding.verifyTitle,SharedPrefs.Utils.getSecondaryColor(requireActivity()),0)
 
         binding.title.setText(prop.proposition)
 

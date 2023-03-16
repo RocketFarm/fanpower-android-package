@@ -4,6 +4,7 @@ class Constants {
 
     object Extra {
         const val PropExtra = "questionExtra"
+        const val UrlExtra = "urlExtra"
     }
 
     object Api{
@@ -28,6 +29,12 @@ class Constants {
         const val TokenForJwtReqPref = "TokenForJwtReqPref"
         const val SourceUrlPref = "sourceUrlPref"
         const val FanIdPref = "fanIdPref"
+
+        const val PrimaryColorPref = "PrimaryColorPref"
+        const val SecondaryColorPref = "SecondaryColorPref"
+        const val backgroundColorPref = "backgroundColorPref"
+        const val TextLinkColorPref = "TextLinkColorPref"
+
     }
 
     object Generic{

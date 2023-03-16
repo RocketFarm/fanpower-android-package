@@ -11,14 +11,18 @@ import com.fanpower.lib.utils.Constants.SharedPref.FanIdPref
 import com.fanpower.lib.utils.Constants.SharedPref.IPAddressPref
 import com.fanpower.lib.utils.Constants.SharedPref.IsFirstRun
 import com.fanpower.lib.utils.Constants.SharedPref.IsMVPPref
+import com.fanpower.lib.utils.Constants.SharedPref.PrimaryColorPref
 import com.fanpower.lib.utils.Constants.SharedPref.ProfilePref
 import com.fanpower.lib.utils.Constants.SharedPref.PropIdPref
 import com.fanpower.lib.utils.Constants.SharedPref.PublisherIdPref
 import com.fanpower.lib.utils.Constants.SharedPref.PublisherPref
 import com.fanpower.lib.utils.Constants.SharedPref.PublisherTokenPref
 import com.fanpower.lib.utils.Constants.SharedPref.ReferralUrlPref
+import com.fanpower.lib.utils.Constants.SharedPref.SecondaryColorPref
 import com.fanpower.lib.utils.Constants.SharedPref.TokenForJwtReqPref
 import com.fanpower.lib.utils.Constants.SharedPref.SourceUrlPref
+import com.fanpower.lib.utils.Constants.SharedPref.TextLinkColorPref
+import com.fanpower.lib.utils.Constants.SharedPref.backgroundColorPref
 import com.google.gson.Gson
 
 
@@ -154,6 +158,47 @@ class SharedPrefs {
         fun savePublisherId(context: Context?, publisherToken: Int) {
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putInt(PublisherIdPref, publisherToken).commit()
+        }
+
+
+        fun getPrimaryColor(context: Context?) : Int{
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            return prefs.getInt(PrimaryColorPref, 0)
+        }
+
+        fun savePrimaryColor(context: Context?, publisherToken: Int) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putInt(PrimaryColorPref, publisherToken).commit()
+        }
+
+        fun getSecondaryColor(context: Context?) : Int{
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            return prefs.getInt(SecondaryColorPref, 0)
+        }
+
+        fun saveSecondaryColor(context: Context?, publisherToken: Int) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putInt(SecondaryColorPref, publisherToken).commit()
+        }
+
+        fun getBackgroundColor(context: Context?) : Int{
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            return prefs.getInt(backgroundColorPref, 0)
+        }
+
+        fun saveBackgroundColor(context: Context?, publisherToken: Int) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putInt(backgroundColorPref, publisherToken).commit()
+        }
+
+        fun getTextLinkColor(context: Context?) : Int{
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            return prefs.getInt(TextLinkColorPref, 0)
+        }
+
+        fun saveTextLinkColor(context: Context?, publisherToken: Int) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putInt(TextLinkColorPref, publisherToken).commit()
         }
 
         fun <Publisher> getPublisher(context: Context?, classType: Class<Publisher>?): Publisher? {

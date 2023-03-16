@@ -94,7 +94,9 @@ class ApiManager {
 
                     var publisher: Publisher? = response.body()
                     Log.i(TAG, "onResponse: " + response)
+
                     if (response.body() != null) {
+                        Utilities.parsePublisherColors(publisher,context)
                         SharedPrefs.Utils.savePublisher(context, publisher)
                     }
                     successFailureCallback.onSuccess()

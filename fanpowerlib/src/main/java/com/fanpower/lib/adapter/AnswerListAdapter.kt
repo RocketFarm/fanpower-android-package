@@ -1,6 +1,8 @@
 package com.fanpower.lib.adapter
 
 import android.app.Activity
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,12 +10,15 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.fanpower.lib.R
 
 
 import com.fanpower.lib.api.model.Pick
 import com.fanpower.lib.interfaces.OnClickCallBack
+import com.fanpower.lib.utils.SharedPrefs
+import com.fanpower.lib.utils.Utilities
 
 class AnswerListAdapter(
     private val mList: ArrayList<Pick>,
@@ -86,27 +91,32 @@ class AnswerListAdapter(
             holder.percentageView.visibility = View.VISIBLE
 
             if (position == selectedIndex) {
-                holder.percentageView.setBackgroundColor(ContextCompat.getColor(activity,R.color.answer_list_percentage_yellow))
-                holder.main.setBackgroundResource(R.drawable.yellow_rounded_not_filled)
-                holder.textView.setTextColor(activity.resources.getColor(R.color.answer_black_border))
-                holder.percentageText.setTextColor(activity.resources.getColor(R.color.answer_black_border))
+                holder.percentageView.setBackgroundColor(SharedPrefs.Utils.getSecondaryColor(activity))
+        //        holder.main.setBackgroundResource(R.drawable.yellow_rounded_not_filled)
+                Utilities.getPickerStrokeBackground(holder.main,0,SharedPrefs.Utils.getPrimaryColor(activity))
+
+                holder.textView.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
+                holder.percentageText.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
 
             } else {
-                holder.percentageView.setBackgroundColor(ContextCompat.getColor(activity,R.color.answer_list_percentage_grey))
-                holder.main.setBackgroundResource(R.drawable.black_rounded_not_filled)
-                holder.textView.setTextColor(activity.resources.getColor(R.color.answer_list_title_grey))
-                holder.percentageText.setTextColor(activity.resources.getColor(R.color.answer_list_grey_percentage_text))
+                holder.percentageView.setBackgroundColor(ContextCompat.getColor(activity,R.color.transparent))
+        //        holder.main.setBackgroundResource(R.drawable.black_rounded_not_filled)
+                Utilities.getPickerStrokeBackground(holder.main,0,R.color.answer_black_border)
+                holder.textView.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
+                holder.percentageText.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
             }
-
 //            val percentWidth = (mainViewWidth / 100) * intPartPercentage
 //            holder.percentageView.getLayoutParams().width = 150
-
-
         } else {
             holder.percentageText.visibility = View.GONE
             holder.percentageView.visibility = View.GONE
-            holder.textView.setTextColor(activity.resources.getColor(R.color.answer_black_border))
-            holder.main.setBackgroundResource(R.drawable.black_rounded_not_filled)
+            holder.textView.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
+
+            Utilities.getPickerStrokeBackground(holder.main,0,R.color.answer_black_border)
+      //      holder.main.setBackgroundResource(R.drawable.black_rounded_not_filled)
+
+//            holder.main.background.setColorFilter(SharedPrefs.Utils.getPrimaryColor(activity),
+//                PorterDuff.Mode.SRC_OVER)
         }
 
         // sets the text to the textview from our itemHolder class

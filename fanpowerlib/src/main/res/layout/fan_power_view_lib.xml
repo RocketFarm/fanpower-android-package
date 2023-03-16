@@ -4,9 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_grey"
+    android:background="@color/white"
     tools:context=".ui.activity.BaseActivity">
 
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
     <ImageView
         android:id="@+id/headerImg"
         android:layout_centerHorizontal="true"
@@ -284,8 +290,9 @@
                 android:foreground="?android:attr/selectableItemBackground" />
 
         </RelativeLayout>
-        
 
+
+    </RelativeLayout>
 
     </RelativeLayout>
 
@@ -298,8 +305,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/progressbar"
         android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_centerInParent="true"
         />
-
 
 </RelativeLayout>

@@ -1,7 +1,6 @@
 package com.fanpower.lib.ui.views
 
 
-import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -19,8 +18,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 
@@ -30,15 +27,14 @@ import com.fanpower.lib.R
 import com.fanpower.lib.adapter.ViewPagerAdapter
 import com.fanpower.lib.api.ApiFactory
 import com.fanpower.lib.api.ApiManager
-import com.fanpower.lib.api.model.MessageResponse
-import com.fanpower.lib.api.model.Prop
-import com.fanpower.lib.api.model.Publisher
-import com.fanpower.lib.api.model.ReferralResponse
+import com.fanpower.lib.api.model.*
 import com.fanpower.lib.databinding.FanPowerViewLibBinding
 import com.fanpower.lib.interfaces.SuccessFailureCallback
 import com.fanpower.lib.interfaces.VerificationPopUpShownCallback
+import com.fanpower.lib.ui.activity.WebViewActivity
 import com.fanpower.lib.ui.fragment.QuestionsFragment
 import com.fanpower.lib.utils.Constants
+import com.fanpower.lib.utils.Constants.Extra.UrlExtra
 import com.fanpower.lib.utils.SharedPrefs
 import com.fanpower.lib.utils.Utilities
 import com.squareup.picasso.Picasso
@@ -58,7 +54,7 @@ class FanPowerView : RelativeLayout {
   //  private  var activity: Activity? = null
 //    private lateinit var context : Context
 
-    private lateinit var propIds: Array<Int>
+    private lateinit var propIds: List<PropId>
     private var publisherId: Int = 0
     private var publisherToken: String = ""
     private var publisher: Publisher? = null
@@ -94,7 +90,6 @@ class FanPowerView : RelativeLayout {
 
     fun initView(
         tokenForJwtRequest: String,
-        propIds: Array<Int>,
         publisherId: Int,
         publisherToken: String,
         shareUrl: String,
@@ -103,7 +98,7 @@ class FanPowerView : RelativeLayout {
       //  this.activity = Utilities.getActivity(this)
      //   this.context = context
         this.tokenForJwtRequest = tokenForJwtRequest
-        this.propIds = propIds
+     //   this.propIds = propIds
         this.publisherId = publisherId
         this.shareUrl = shareUrl
         this.publisherToken = publisherToken
@@ -171,11 +166,18 @@ class FanPowerView : RelativeLayout {
 
 
         binding.termsAndConditionBtn.setOnClickListener {
-            Utilities.openUrl(context, "https://fanpower.io/terms/")
+            val intent = Intent(context, WebViewActivity::class.java)
+            intent.putExtra(UrlExtra, "https://fanpower.io/terms/")
+            Log.i(TAG, "setUpBtns: get activity " + Utilities.getActivity(rootView))
+            Utilities.getActivity(  this)?.startActivity(intent)
+         //   Utilities.openUrl(context, "https://fanpower.io/terms/")
         }
 
         binding.learnMoreBtn.setOnClickListener {
-            Utilities.openUrl(context, "https://fanpower.io")
+            val intent = Intent(context, WebViewActivity::class.java)
+            intent.putExtra(UrlExtra, "https://fanpower.io")
+            Utilities.getActivity(this)?.startActivity(intent)
+       //     Utilities.openUrl(context, "https://fanpower.io")
         }
 
         binding.facebookBtn.setOnClickListener {
@@ -356,6 +358,8 @@ class FanPowerView : RelativeLayout {
         binding.viewPager.setAdapter(adapter)
         addDots()
 
+        binding.viewPager.offscreenPageLimit = 10
+
         //    binding.viewPager.adapter = viewPagerAdapter
             //    binding.dotsIndicator.attachTo(binding.viewPager)
 
@@ -419,6 +423,7 @@ class FanPowerView : RelativeLayout {
     }
 
    private fun getPublisherDataFromServer() {
+     //  binding.progressbar.visibility = View.VISIBLE
 //        publisher = SharedPrefs.Utils.getPublisher(context,Publisher::class.java)
 //        if(publisher != null){
 //            Log.i(TAG, "getPublisherDataFromServer: publisher is not null " + publisher)
@@ -428,13 +433,16 @@ class FanPowerView : RelativeLayout {
 
         ApiManager.getPublisher(context, object : SuccessFailureCallback {
             override fun onSuccess() {
+                binding.progressbar.visibility = View.GONE
                 if (context == null) {
                     return
                 }
                 publisher = SharedPrefs.Utils.getPublisher(context, Publisher::class.java)
                 if (publisher != null) {
+                    binding.mainLayout.visibility = View.VISIBLE
                     randerUiWithPublisher()
-                    getProps()
+                    getCarouselData()
+
                     if (SharedPrefs.Utils.isLoggedIn(context)) {
                         ApiManager.getFanProfile(context)
                     }
@@ -442,10 +450,38 @@ class FanPowerView : RelativeLayout {
             }
 
             override fun onFailure(messageResponse: MessageResponse) {
-
+                binding.progressbar.visibility = View.GONE
             }
         })
         //  }
+    }
+
+    private fun getCarouselData(){
+        if (!Utilities.isOnline(context)) {
+            return
+        }
+        binding.progressbar.visibility = View.VISIBLE
+
+        val responseCarousel: Call<CarouselResponse> =
+            ApiFactory.getInstance()!!.getCarouselData(SharedPrefs.Utils.getPublisherId(context),
+            SharedPrefs.Utils.getPublisherToken(context))
+        responseCarousel.enqueue(object : Callback<CarouselResponse>{
+
+            override fun onResponse(call: Call<CarouselResponse>, response: Response<CarouselResponse>) {
+           //     binding.progressbar.visibility = View.GONE
+                val carouselResponse = response.body()
+                if(carouselResponse != null ){
+                    propIds = carouselResponse.prop_ids
+                    getProps()
+                }
+            }
+
+            override fun onFailure(call: Call<CarouselResponse>, t: Throwable) {
+                binding.progressbar.visibility = View.GONE
+            }
+        })
+
+      //  getProps()
     }
 
 
@@ -459,7 +495,7 @@ class FanPowerView : RelativeLayout {
         for (x in propIds) {
 
             val responseVerifyFan: Call<ArrayList<Prop>> =
-                ApiFactory.getInstance()!!.getProps(x.toString())
+                ApiFactory.getInstance()!!.getProps(x.prop_id.toString())
             //     val responseVerifyFan: Call<String> = ApiFactory.getInstance()!!.getProps(5,1)
             responseVerifyFan.enqueue(object : Callback<ArrayList<Prop>?> {
                 override fun onResponse(
@@ -494,6 +530,12 @@ class FanPowerView : RelativeLayout {
         Log.i(TAG, "randerUiWithPublisher: going to load " + publisher?.logo_url)
         Picasso.get().load(publisher?.picker_logo_url).into(binding.headerImg)
         binding.headerImg.visibility = View.VISIBLE
+
+        binding.mainLayout.setBackgroundColor(SharedPrefs.Utils.getBackgroundColor(context))
+        binding.learnMoreBtn.setTextColor(SharedPrefs.Utils.getTextLinkColor(context))
+        binding.termsAndConditionBtn.setTextColor(SharedPrefs.Utils.getTextLinkColor(context))
+
+
     }
 
     private fun addDots() {

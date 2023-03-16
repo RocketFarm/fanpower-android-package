@@ -37,7 +37,7 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
-
+        android:scrollbars="vertical"
         android:visibility="visible"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
@@ -205,13 +205,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-        <ImageView
-            android:scaleType="centerCrop"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:id="@+id/adImage"
-            />
+            android:layout_height="match_parent"
+            app:cardCornerRadius="8dp"
+            android:layout_margin="5dp"
+            android:elevation="10dp">
+
+            <ImageView
+                android:scaleType="centerCrop"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:id="@+id/adImage"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+
+
 
         <TextView
             android:visibility="gone"

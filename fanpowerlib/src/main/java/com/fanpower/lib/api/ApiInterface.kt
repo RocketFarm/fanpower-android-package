@@ -28,6 +28,10 @@ interface ApiInterface {
     @POST("/v1/fans/auth/verify")
     fun verifyFan(@Query("token") publisherToken: String?, @Body  verifyFanBody: VerifyFanBody) : Call<VerifyFanResponse>
 
+
+    @GET("/v2/carousels/publisher/{publisher_id}/mobile")
+    fun getCarouselData(@Path("publisher_id") publisherId: Int?,@Query("token") publisherToken: String?) : Call<CarouselResponse>
+
     @GET("/v1/props")
     fun getProps(@Query("id") propId : String?): Call<ArrayList<Prop>>
 

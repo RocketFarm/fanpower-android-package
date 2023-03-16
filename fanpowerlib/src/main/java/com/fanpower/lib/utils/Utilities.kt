@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -12,15 +14,16 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import com.fanpower.lib.api.model.Publisher
 import java.net.Inet4Address
 import java.net.NetworkInterface
-import java.security.AccessController.getContext
 
 
 class Utilities {
 
     companion object{
+
+        private const val TAG = "Utilities"
 
         fun isValidEmail(target: CharSequence?): Boolean {
             return !TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches()
@@ -110,5 +113,78 @@ class Utilities {
 //        }
 
 
+        public fun parsePublisherColors(publisherResponse: Publisher?,context: Context){
+
+
+            if(publisherResponse != null)  {
+                val primaryColor = if (publisherResponse.primary_color == null) {
+                    Color.parseColor("#1D0A2C")
+                } else {
+                    Log.i(TAG, "parsePublisherColors: in else primary")
+                    Color.parseColor(publisherResponse.primary_color)
+                }
+                Log.i(TAG, "parsePublisherColors: primary color is " + primaryColor)
+                SharedPrefs.Utils.savePrimaryColor(context,primaryColor)
+
+                val secondaryColor = if (publisherResponse.secondary_color == null) {
+                    Color.parseColor("#44CA97")
+                } else {
+                    Color.parseColor(publisherResponse.secondary_color)
+                }
+                SharedPrefs.Utils.saveSecondaryColor(context,secondaryColor)
+
+                val iconColor = if (publisherResponse.icon_color == null) {
+                    Color.parseColor("#FA5757")
+                } else {
+                    Color.parseColor(publisherResponse.icon_color)
+                }
+
+
+                val textLinkColor = if (publisherResponse.text_link_color == null) {
+                    Color.parseColor("#F8F7FA")
+                } else {
+                    Color.parseColor(publisherResponse.text_link_color)
+                }
+                SharedPrefs.Utils.saveTextLinkColor(context,textLinkColor)
+
+//                viewModel.textLinkColor = textLinkColor
+//                termsAndConditionsLabel.setTextColor(textLinkColor)
+//                learnMoreLabel.setTextColor(textLinkColor)
+
+                val backgroundColor = if (publisherResponse.background_color == null) {
+                    Color.parseColor("#1E1E1E")
+                } else {
+                    Color.parseColor(publisherResponse.background_color)
+                }
+                SharedPrefs.Utils.saveBackgroundColor(context,backgroundColor)
+
+//                contentView.setBackgroundColor(backgroundColor)
+//
+//                collectionView.adapter?.notifyDataSetChanged()
+            }
+        }
+
+        fun getPickerStrokeBackground(v: View, backgroundColor: Int, borderColor: Int) {
+            val shape = GradientDrawable()
+            shape.shape = GradientDrawable.RECTANGLE
+            shape.cornerRadii = floatArrayOf(88f, 88f, 88f, 88f, 88f, 88f, 88f, 88f)
+           // shape.setColor(backgroundColor)
+            shape.setStroke(3, borderColor)
+            v.background = shape
+        }
+
+        fun getVerifyTitleBackground(v: View, backgroundColor: Int, borderColor: Int) {
+            val shape = GradientDrawable()
+            shape.shape = GradientDrawable.RECTANGLE
+            shape.cornerRadii = floatArrayOf(35f, 35f, 35f, 35f, 0f, 0f, 0f, 0f)
+             shape.setColor(backgroundColor)
+          //  shape.setStroke(0, borderColor)
+            v.background = shape
+        }
+
     }
+
+
+
+
 }
