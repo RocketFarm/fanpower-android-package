@@ -44,14 +44,13 @@ class MainActivity : AppCompatActivity() {
 
         fanPowerView.initView(
             "your-tokenForJwtRequest",
-            arrayOf(0, 0), // replace with your list of prop IDs.  Can be a list of a single ID.
             0, // your-publisherId
             "your-publisherToken",
             "your-shareUrl",
-            this
+            supportFragmentManager
         )
     }
 }
 ```
-tokenForJwtRequest, publisherToken, and publisherId should be supplied to you by FanPower. ShareUrl is a URL that users will share when they use the widget's share feature. It is also used to create the referral URL.
+tokenForJwtRequest, publisherToken, and publisherId should be supplied to you by FanPower. ShareUrl is a URL that users will share when they use the widget's share feature. It is also used to create the referral URL. supportFragmentManager is the FragmentManager of your activity that you need to provide. 
 
