@@ -18,6 +18,5 @@ class MainActivity : AppCompatActivity() {
             "your-publisherToken",
             "your-shareUrl",
             supportFragmentManager)
-        
     }
 }

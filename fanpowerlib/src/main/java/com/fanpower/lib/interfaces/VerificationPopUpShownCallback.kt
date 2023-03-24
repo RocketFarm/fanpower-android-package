@@ -5,4 +5,6 @@ interface VerificationPopUpShownCallback {
     fun enableScroll()
 
     fun disableScroll()
+
+    fun userPicked()
 }

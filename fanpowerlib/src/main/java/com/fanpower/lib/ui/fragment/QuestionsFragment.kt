@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.fanpower.lib.R
 import com.fanpower.lib.adapter.AnswerListAdapter
 import com.fanpower.lib.api.ApiManager
@@ -29,7 +30,7 @@ import com.fanpower.lib.utils.Constants.Generic.VerifyAdId
 import com.fanpower.lib.utils.SharedPrefs
 import com.fanpower.lib.utils.Utilities
 import com.squareup.picasso.Picasso
-import com.squareup.picasso.Transformation
+import kotlin.math.log
 
 class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fragment() {
 
@@ -130,6 +131,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
                         binding.verifyIdentityLayout.visibility = View.VISIBLE
 
                     }else{
+                        onsucessCallback.userPicked()
                         userChooseAPick(pick.id, PostPickAdId)
                         adapter.setAnswerModeView(true)
                     }
@@ -163,6 +165,66 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
                 switchToOtherModeToVerify()
             }
         }
+
+
+//        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+//                val position = (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+//                Log.i(TAG, "onScrolled: position " + position)
+//                if (position + 1 == prop.picks.size) {
+//                    // END OF RECYCLERVIEW IS REACHED
+//                    Log.i(TAG, "onScrolled: end of recyler view")
+//                } else if(position == 0){
+//                    Log.i(TAG, "onScrolled: start of position")
+//                }else {
+//                    Log.i(TAG, "onScrolled: not end or start")
+//                    // END OF RECYCLERVIEW IS NOT REACHED
+//                }
+//            }
+//        })
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+                val lastItemPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+                val firstItemPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition()
+
+                Log.i(TAG, "onScrolled: prop id " + prop.id + " first item position " + firstItemPosition)
+                Log.i(TAG, "onScrolled:prop id  " + prop.id +  " last item position " + lastItemPosition)
+                Log.i(TAG, "onScrolled: prps picks size " + prop.picks.size)
+                if(firstItemPosition == 0 && lastItemPosition + 1 == prop.picks.size){
+                    Log.i(TAG, "onScrolled: no need to show indicators")
+                    // no need to show any indicator
+                    binding.topScrollIndicator.visibility = View.GONE
+                    binding.bottomScrollIndicator.visibility = View.GONE
+
+                }else{
+                    Log.i(TAG, "onScrolled: in else part")
+                    if (!recyclerView.canScrollVertically(1) && dy > 0) {
+                        //scrolled to BOTTOM
+                        Log.i(TAG, "onScrolled: reached bottom")
+                        binding.topScrollIndicator.visibility = View.VISIBLE
+                        binding.bottomScrollIndicator.visibility = View.GONE
+
+                    } else if (!recyclerView.canScrollVertically(-1) && dy < 0) {
+                        //scrolled to TOP
+                        Log.i(TAG, "onScrolled: reached top")
+                        binding.topScrollIndicator.visibility = View.GONE
+                        binding.bottomScrollIndicator.visibility = View.VISIBLE
+                    }
+                    if (firstItemPosition != 0){
+                        Log.i(TAG, "onScrolled: showing first indicator")
+                        binding.topScrollIndicator.visibility = View.VISIBLE
+                    }
+                    if(lastItemPosition + 1 != prop.picks.size){
+                        binding.bottomScrollIndicator.visibility = View.VISIBLE
+                    }
+
+                }
+            }
+        })
+
+        binding.recyclerView.smoothScrollToPosition(0);
     }
 
     private fun getFanPicks(){
@@ -222,14 +284,14 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
         if (isEmailMode) { // change to phone mode
             binding.countryCodePicker.visibility = View.VISIBLE
 
-            binding.editTextCarrierNumber.setHint("enter phone number")
+            binding.editTextCarrierNumber.setHint(R.string.edittext_hint_phone)
             binding.editTextCarrierNumber.setText("")
             binding.resendCodeText.setText("or use your email address")
             binding.editTextCarrierNumber.inputType = InputType.TYPE_CLASS_PHONE
         } else { // change to email view
 
             binding.countryCodePicker.visibility = View.GONE
-            binding.editTextCarrierNumber.setHint("johnsmith@gmail.com")
+            binding.editTextCarrierNumber.setHint(R.string.edittext_hint_email)
             binding.editTextCarrierNumber.setText("")
             binding.resendCodeText.setText("or use your phone number")
             binding.editTextCarrierNumber.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
@@ -367,7 +429,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
                 binding.progressBar.visibility = View.GONE
                 enterCodeMode = false
                 activity?.runOnUiThread {
-                    Toast.makeText(context,"Verified !",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,"Pick verified",Toast.LENGTH_SHORT).show()
                 }
 
            //     SharedPrefs.Utils.saveIsUserVerified(requireActivity(),true)

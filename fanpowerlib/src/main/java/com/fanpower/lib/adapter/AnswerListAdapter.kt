@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -63,8 +64,6 @@ class AnswerListAdapter(
         val percString = intPartPercentage.toString().plus("%")
         holder.percentageText.setText(percString)
 
-
-
         holder.main.post(Runnable {
             mainViewWidth = holder.main.width //width is ready
 //            Log.i(TAG, "onBindViewHolder: width of mian view is " + width)
@@ -76,11 +75,21 @@ class AnswerListAdapter(
 
         })
 
+//        holder.percentageView.post {
+//            //   holder.percentageView.translationX = -1000f
+//            holder.percentageView.translationX = (((holder.percentageView.width.toFloat() / 100f) * itemsViewModel.pick_popularity.toFloat()) - holder.percentageView.width.toFloat())
+//
+//        }
 
-        holder.percentageView.post {
-            holder.percentageView.translationX =
-                ((holder.percentageView.width.toFloat() / 100f) * itemsViewModel.pick_popularity.toFloat()) - holder.percentageView.width.toFloat()
+        if(answerMode) {
+            holder.percentageView.post {
+                holder.percentageView.animate()
+                    .translationX(((holder.percentageView.width.toFloat() / 100f) * itemsViewModel.pick_popularity.toFloat()) - holder.percentageView.width.toFloat())
+                    .setDuration(500)
+
+            }
         }
+
 
 
         Log.i(TAG, "onBindViewHolder: answer mode  " + answerMode)
@@ -99,7 +108,7 @@ class AnswerListAdapter(
                 holder.percentageText.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
 
             } else {
-                holder.percentageView.setBackgroundColor(ContextCompat.getColor(activity,R.color.transparent))
+                holder.percentageView.setBackgroundColor(ContextCompat.getColor(activity,R.color.answer_list_percentage_grey))
         //        holder.main.setBackgroundResource(R.drawable.black_rounded_not_filled)
                 Utilities.getPickerStrokeBackground(holder.main,0,R.color.answer_black_border)
                 holder.textView.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
@@ -120,13 +129,18 @@ class AnswerListAdapter(
         }
 
         // sets the text to the textview from our itemHolder class
-        holder.textView.text = itemsViewModel.title
+        holder.textView.text = itemsViewModel.display_title
 
         holder.main.setOnClickListener {
             if(selectedIndex == -1) {
                 onClickCallBack.onClick(itemsViewModel)
                 selectedIndex = position
             }
+
+
+
+//            var animation = AnimationUtils.loadAnimation(activity,R.anim.left_to_right_anim)
+//            holder.percentageView.startAnimation(animation)
 
         }
 

@@ -9,7 +9,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="11.5dp"
         android:background="@drawable/black_rounded_not_filled"
         android:paddingTop="3.5dp"
         android:paddingBottom="3.5dp">
@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:background="@color/answer_list_percentage_grey"
-                android:translationX="-40dp" />
+                android:translationX="-1000dp" />
         </androidx.cardview.widget.CardView>
 
         <TextView
@@ -48,7 +48,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"
             android:layout_toLeftOf="@+id/percentage"
-            android:fontFamily="@font/outfit_semibold"
+            android:fontFamily="@font/outfit_medium"
             android:gravity="center"
             android:minHeight="40dp"
             android:text="test"

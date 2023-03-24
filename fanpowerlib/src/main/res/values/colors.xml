@@ -17,6 +17,11 @@
 
 
     <color name="black_70_alpha">#CC000000</color>
+    <color name="black_50_alpha">#73000000</color>
+    <color name="black_40_alpha">#55000000</color>
+    <color name="black_20_alpha">#30000000</color>
+    <color name="black_10_alpha">#1A000000</color>
+
 
     <color name="white_95_alpha">#E9ffffff</color>
     <color name="white_90_alpha">#E6ffffff</color>

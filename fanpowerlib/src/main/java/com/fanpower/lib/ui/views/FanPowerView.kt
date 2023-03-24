@@ -42,6 +42,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.log
 
 
 class FanPowerView : RelativeLayout {
@@ -65,6 +67,7 @@ class FanPowerView : RelativeLayout {
 
 
     private var props = ArrayList<Prop>()
+    private var hasUserPickedArray = ArrayList<Boolean>()
     private var dots: List<ImageView>? = null
 
     private var currentAlpha = 0f
@@ -113,12 +116,11 @@ class FanPowerView : RelativeLayout {
 
         Utilities.getActivity(this)?.getWindow()?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-
-        if(SharedPrefs.Utils.getIsFirstRun(context)){
-            binding.popupBg.visibility = VISIBLE
-        }else{
-            binding.popupBg.visibility = GONE
-        }
+//        if(SharedPrefs.Utils.getIsFirstRun(context)){
+//            binding.popupBg.visibility = VISIBLE
+//        }else{
+//            binding.popupBg.visibility = GONE
+//        }
 
         setUpBtns()
         //    setupViewPager()
@@ -190,7 +192,7 @@ class FanPowerView : RelativeLayout {
 
           //  title = title + "&hashtags=makeyourpick "
 
-            var urlToShare = SharedPrefs.Utils.getReferralUrl(context)
+            var urlToShare = SharedPrefs.Utils.getSourceUrl(context)
 
             Log.i(TAG, "setUpBtns: url to share " + urlToShare)
 
@@ -223,9 +225,14 @@ class FanPowerView : RelativeLayout {
                 title = props.get(binding.viewPager.currentItem).proposition
             }
 
-            title = title + "&hashtags=makeyourpick "
 
-            var url = SharedPrefs.Utils.getReferralUrl(context)
+            if(hasUserPickedArray.get(binding.viewPager.currentItem) == false) {
+                title = title + "&hashtags=makeyourpick "
+            }else{
+                title = title
+            }
+
+            var url = SharedPrefs.Utils.getSourceUrl(context)
 
             Log.i(TAG, "setUpBtns: url is " + url)
 
@@ -253,7 +260,12 @@ class FanPowerView : RelativeLayout {
 
             val smsIntent = Intent(Intent.ACTION_SENDTO)
             smsIntent.data = Uri.parse("smsto:")
-            smsIntent.putExtra("sms_body", title + " " + urlToShare + "#makeyourpick ")
+            if(hasUserPickedArray.get(binding.viewPager.currentItem) == false) {
+                smsIntent.putExtra("sms_body", title + " " + urlToShare + "#makeyourpick ")
+            }else{
+                smsIntent.putExtra("sms_body", title + " " + urlToShare)
+            }
+
             context.startActivity(smsIntent)
         }
 
@@ -301,7 +313,7 @@ class FanPowerView : RelativeLayout {
                 if (referralResponse != null) {
 
                     urlToShare = referralResponse.referral_url
-                    SharedPrefs.Utils.saveReferralUrl(context, referralResponse.referral_url)
+                    SharedPrefs.Utils.saveSourceUrl(context, referralResponse.referral_url)
                     Log.i(TAG, "onResponse: url is " + referralResponse.referral_url)
                 }
             }
@@ -334,9 +346,11 @@ class FanPowerView : RelativeLayout {
         // LoginFragment is the name of Fragment and the Login
         // is a title of tab
 
-        for (x in props) {
+        for ((index, value) in props.withIndex()) {
+     //   for (x in props) {
             var bundle = Bundle()
-            bundle.putSerializable(Constants.Extra.PropExtra, x)
+            bundle.putSerializable(Constants.Extra.PropExtra, value)
+
             var frag = QuestionsFragment(object : VerificationPopUpShownCallback {
                 override fun enableScroll() {
                     binding.viewPager.isPagingEnabled = true
@@ -346,8 +360,14 @@ class FanPowerView : RelativeLayout {
                 override fun disableScroll() {
                     binding.viewPager.isPagingEnabled = false
                 }
-            });
 
+                override fun userPicked() {
+                    Log.i(TAG, "userPicked: index is " + index)
+                    if(hasUserPickedArray.size >= index) {
+                        hasUserPickedArray.set(index, true)
+                    }
+                }
+            });
 
             frag.arguments = bundle
 
@@ -468,7 +488,7 @@ class FanPowerView : RelativeLayout {
         responseCarousel.enqueue(object : Callback<CarouselResponse>{
 
             override fun onResponse(call: Call<CarouselResponse>, response: Response<CarouselResponse>) {
-           //     binding.progressbar.visibility = View.GONE
+                binding.progressbar.visibility = View.GONE
                 val carouselResponse = response.body()
                 if(carouselResponse != null ){
                     propIds = carouselResponse.prop_ids
@@ -490,6 +510,9 @@ class FanPowerView : RelativeLayout {
             return
         }
 
+        props.clear()
+        hasUserPickedArray.clear()
+
         binding.progressbar.visibility = View.VISIBLE
 
         for (x in propIds) {
@@ -508,6 +531,7 @@ class FanPowerView : RelativeLayout {
 
                     if (response != null) {
                         props.add(response.body()!!.get(0))
+                        hasUserPickedArray.add(false)
                       //  props = response.body()!!
 //                        if (response.body()!!.size > 0) {
 //                            props.add(response.body()!!.get(0))
