@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
       //  applicationId "com.fan.fanpagelib"
-        minSdk 24
+        minSdk 22
         targetSdk 33
         versionCode 3
         versionName "1.2"

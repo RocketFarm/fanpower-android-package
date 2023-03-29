@@ -163,7 +163,7 @@ class FanPowerView : RelativeLayout {
 
 
         }
-        getReferrals()
+//        getReferrals()
 
 
 
@@ -258,12 +258,15 @@ class FanPowerView : RelativeLayout {
                 title = props.get(binding.viewPager.currentItem).proposition
             }
 
+            var url = SharedPrefs.Utils.getSourceUrl(context)
+            Log.i(TAG, "setUpBtns: url to share is " + url)
+
             val smsIntent = Intent(Intent.ACTION_SENDTO)
             smsIntent.data = Uri.parse("smsto:")
             if(hasUserPickedArray.get(binding.viewPager.currentItem) == false) {
-                smsIntent.putExtra("sms_body", title + " " + urlToShare + "#makeyourpick ")
+                smsIntent.putExtra("sms_body", title + " " + url + "#makeyourpick ")
             }else{
-                smsIntent.putExtra("sms_body", title + " " + urlToShare)
+                smsIntent.putExtra("sms_body", title + " " + url)
             }
 
             context.startActivity(smsIntent)
@@ -292,7 +295,9 @@ class FanPowerView : RelativeLayout {
     private fun getReferrals() {
 
         var currentPropId = "";
+        Log.i(TAG, "getReferrals: props size " + props.size)
         if(props != null && props.size>= binding.viewPager.currentItem && props.size != 0){
+            Log.i(TAG, "getReferrals: prop id " + props.get(binding.viewPager.currentItem).id)
             currentPropId = props.get(binding.viewPager.currentItem).id
         }
 
@@ -537,6 +542,7 @@ class FanPowerView : RelativeLayout {
 //                            props.add(response.body()!!.get(0))
 //                        }
                         setupViewPager()
+                        getReferrals()
                     }
                 }
 

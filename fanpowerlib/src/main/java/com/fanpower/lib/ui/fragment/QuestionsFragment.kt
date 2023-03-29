@@ -275,9 +275,8 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
         onsucessCallback.enableScroll()
         binding.verifyIdentityLayout.visibility = View.GONE
         adapter.setAnswerModeView(true)
-        getPublicAdsApi(PrePickAdId)
+        getPublicAdsApi(PostPickAdId)
         adapter.notifyDataSetChanged()
-
     }
 
     private fun switchToOtherModeToVerify() {

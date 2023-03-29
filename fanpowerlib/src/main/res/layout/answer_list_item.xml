@@ -42,17 +42,15 @@
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="10dp"
-            android:layout_toLeftOf="@+id/percentage"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="70dp"
             android:fontFamily="@font/outfit_medium"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:minHeight="40dp"
             android:text="test"
-
             android:textAllCaps="true"
             android:textSize="14dp" />
 
@@ -64,8 +62,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="15dp"
             android:fontFamily="@font/outfit_bold"
-            android:text="10%"
-
+            android:text=""
             android:textSize="14dp"
             android:visibility="gone" />
 
