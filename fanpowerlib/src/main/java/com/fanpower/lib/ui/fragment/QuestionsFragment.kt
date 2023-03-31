@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fanpower.lib.R
 import com.fanpower.lib.adapter.AnswerListAdapter
+import com.fanpower.lib.api.ApiFactory
 import com.fanpower.lib.api.ApiManager
 import com.fanpower.lib.api.model.*
 import com.fanpower.lib.databinding.FragmentQuestionsBinding
@@ -29,8 +30,18 @@ import com.fanpower.lib.utils.Constants.Generic.PrePickAdId
 import com.fanpower.lib.utils.Constants.Generic.VerifyAdId
 import com.fanpower.lib.utils.SharedPrefs
 import com.fanpower.lib.utils.Utilities
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
-import kotlin.math.log
+import okhttp3.ResponseBody
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import org.json.JSONStringer
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 
 class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fragment() {
 
@@ -147,10 +158,15 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
             if (binding.editTextCarrierNumber.text.toString().isNotEmpty()) {
                 if (enterCodeMode) {
                     binding.progressBar.visibility = View.VISIBLE
-                    sendVerifyFanApi()
+                    var code =  binding.editTextCarrierNumber.text.toString().trim()
+                    sendVerifyFanApi(code)
                 } else {
                     Log.i(TAG, "setUpView: is not empty")
-                    sendAuthenticateFanApi()
+                    if(isEmailMode) {
+                        sendEmailValidation()
+                    }else{
+                        sendAuthenticateFanApi()
+                    }
                 }
             } else {
                 Log.i(TAG, "setUpView: is empty")
@@ -227,6 +243,43 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
         binding.recyclerView.smoothScrollToPosition(0);
     }
 
+    private fun sendEmailValidation() {
+
+        binding.progressBar.visibility = View.VISIBLE
+
+        var email = binding.editTextCarrierNumber.text.toString().trim()
+        var emailValidateBody = EmailValidateBody()
+        emailValidateBody.email = email
+
+
+        val responseEmailValidateBody: Call<String> =
+            ApiFactory.getInstance()!!.validateEmail(SharedPrefs.Utils.getPublisherToken(activity),emailValidateBody)
+        responseEmailValidateBody.enqueue(object : Callback<String>{
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                binding.progressBar.visibility = View.GONE
+                var validatedStr : String? = response.body()
+                var errorStr : ResponseBody? = response.errorBody()
+                Log.i(TAG, "onResponse: validated string " + validatedStr)
+                if(validatedStr != null && (validatedStr.toLowerCase().equals("valid") || validatedStr.toLowerCase().equals("risky"))){
+                    Log.i(TAG, "onResponse: email is valid ")
+                    emailForVerification = email
+                    sendVerifyFanApi("validated")
+                }else{
+                    Toast.makeText(activity,"Invalid Email",Toast.LENGTH_SHORT).show()
+                }
+
+
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                binding.progressBar.visibility = View.GONE
+                Log.i(TAG, "onFailure: email " + t.message.toString())
+                Toast.makeText(activity,t.message.toString(),Toast.LENGTH_SHORT).show()
+            }
+        })
+
+    }
+
     private fun getFanPicks(){
         ApiManager.getFanPicks(requireActivity(),prop.id, object : FanPickCallback{
             override fun onSuccess(list: List<FanPickItem>?) {
@@ -259,7 +312,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
     }
 
    private fun createFanPick(pickIdStr: String){
-        ApiManager.createFanPick(requireActivity(),object : SuccessFailureCallback{
+        ApiManager.createFanPick(prop.id,requireActivity(),object : SuccessFailureCallback{
             override fun onSuccess() {
 
             }
@@ -324,6 +377,17 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
             }
 
             override fun onFinish() {
+                binding.editTextCarrierNumber.setText("")
+                binding.timerText.visibility = View.GONE
+                binding.timerText.setText("")
+                binding.timerText.setTextColor(ContextCompat.getColor(requireActivity(),R.color.grey_light))
+                binding.resendCodeText.visibility = View.VISIBLE
+                binding.editTextCarrierNumber.setHint(R.string.edittext_hint_phone)
+                binding.resendCodeText.setText(R.string.or_use_your_email_address)
+                binding.verifyTitle.setText(R.string.verify_your_pick_to_see_results)
+                isEmailMode = true
+                enterCodeMode = false
+                switchToOtherModeToVerify()
 
             }
         }
@@ -336,7 +400,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
     }
 
    private fun resetTimer() {
-        if (timer != null) {
+        if (this::timer.isInitialized && timer != null) {
             timer.cancel()
         }
 
@@ -409,10 +473,11 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
             })
     }
 
-    private fun sendVerifyFanApi() {
+    private fun sendVerifyFanApi(code: String) {
         val verifyFanBody = VerifyFanBody()
 
-        verifyFanBody.code = binding.editTextCarrierNumber.text.toString().trim()
+        verifyFanBody.code = code
+
         if (isEmailMode) {
 
             verifyFanBody.email = emailForVerification
@@ -434,6 +499,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
            //     SharedPrefs.Utils.saveIsUserVerified(requireActivity(),true)
 
                 hideVerificationPopUp()
+                getFanPicks()
 
                 val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager?
                 imm?.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)

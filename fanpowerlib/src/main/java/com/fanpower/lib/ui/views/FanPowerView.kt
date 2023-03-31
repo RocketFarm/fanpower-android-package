@@ -226,11 +226,12 @@ class FanPowerView : RelativeLayout {
             }
 
 
-            if(hasUserPickedArray.get(binding.viewPager.currentItem) == false) {
-                title = title + "&hashtags=makeyourpick "
-            }else{
-                title = title
-            }
+//            if(hasUserPickedArray.get(binding.viewPager.currentItem) == false) {
+//             //   title = title + "&hashtags=makeyourpick "
+//                title = title
+//            }else{
+//                title = title
+//            }
 
             var url = SharedPrefs.Utils.getSourceUrl(context)
 
@@ -263,11 +264,13 @@ class FanPowerView : RelativeLayout {
 
             val smsIntent = Intent(Intent.ACTION_SENDTO)
             smsIntent.data = Uri.parse("smsto:")
-            if(hasUserPickedArray.get(binding.viewPager.currentItem) == false) {
-                smsIntent.putExtra("sms_body", title + " " + url + "#makeyourpick ")
-            }else{
-                smsIntent.putExtra("sms_body", title + " " + url)
-            }
+//            if(hasUserPickedArray.get(binding.viewPager.currentItem) == false) {
+//                smsIntent.putExtra("sms_body", title + " " + url )
+//            }else{
+//                smsIntent.putExtra("sms_body", title + " " + url)
+//            }
+
+            smsIntent.putExtra("sms_body", title + " " + url )
 
             context.startActivity(smsIntent)
         }

@@ -22,6 +22,9 @@ interface ApiInterface {
     @POST("/v1/fans/auth")
     fun authenticateFan(@Query("token") publisherToken: String?, @Body  authenticateBody : AuthenticateBody) : Call<String>
 
+    @POST("/v1/fans/validate")
+    fun validateEmail(@Query("token") publisherToken: String?, @Body emailValidateBody: EmailValidateBody) : Call<String>
+
     @GET("v1/fans/profile")
     fun getFanProfile(@Query("token") publisherToken: String?,@Query("fan_id") fanId: String) : Call<Profile>
 

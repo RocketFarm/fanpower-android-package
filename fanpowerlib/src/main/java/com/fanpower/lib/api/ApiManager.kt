@@ -262,7 +262,7 @@ class ApiManager {
         }
 
         fun createFanPick(
-            context: Activity,
+            propId: String,context: Activity,
             successFailureCallback: SuccessFailureCallback,
             pickId: String
         ) {
@@ -273,13 +273,14 @@ class ApiManager {
 //            var proposition = Proposition()
 
 
-            fanPickBody.pick_id = pickId; fanPickBody.prop_id =
-                SharedPrefs.Utils.getPropId(context).toString()
+            fanPickBody.pick_id = pickId;
+            fanPickBody.prop_id = propId
             fanPickBody.publisher_id = SharedPrefs.Utils.getPublisherToken(context).toString()
             fanPickBody.fan_id = SharedPrefs.Utils.getFanId(context).toString()
             fanPickBody.source_url = SharedPrefs.Utils.getSourceUrl(context).toString()
             fanPickBody.proposition = Proposition()
-            fanPickBody.proposition.id = SharedPrefs.Utils.getPropId(context).toString()
+            fanPickBody.proposition.id = propId
+
             if (ipAddressResponse != null) {
                 fanPickBody.ip_address = ipAddressResponse.ipAddress
                 fanPickBody.fanCity = ipAddressResponse.fanCity; fanPickBody.fanState =
@@ -306,7 +307,8 @@ class ApiManager {
                         var associateFanPickBody = AssociateFanPickBody(
                             PrePickAdId, SharedPrefs.Utils.getFanId(context).toString(),
                             responseBack.fanPick,
-                            SharedPrefs.Utils.getPropId(context).toString(),
+                            propId,
+                           // SharedPrefs.Utils.getPropId(context).toString(),
                             SharedPrefs.Utils.getPublisherToken(context).toString()
                         )
 
