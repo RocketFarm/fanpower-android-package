@@ -14,16 +14,14 @@ import android.view.View
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-
 import com.fanpower.lib.R
-
-
 import com.fanpower.lib.adapter.ViewPagerAdapter
 import com.fanpower.lib.api.ApiFactory
 import com.fanpower.lib.api.ApiManager
@@ -42,8 +40,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.math.log
 
 
 class FanPowerView : RelativeLayout {
@@ -53,7 +49,12 @@ class FanPowerView : RelativeLayout {
     private var binding: FanPowerViewLibBinding
 
     private lateinit var fragmentManager : FragmentManager
-  //  private  var activity: Activity? = null
+    private  var topMarginInScrollView : Float = 0f
+    private  var bottomMarginInScrollView : Float = 0f
+    private var widgetHeight : Int = 0
+
+
+    //  private  var activity: Activity? = null
 //    private lateinit var context : Context
 
     private lateinit var propIds: List<PropId>
@@ -62,6 +63,7 @@ class FanPowerView : RelativeLayout {
     private var publisher: Publisher? = null
     private var tokenForJwtRequest: String = ""
     private var shareUrl: String = ""
+    private lateinit var webView : WebView
 
     private var urlToShare = ""
 
@@ -73,7 +75,7 @@ class FanPowerView : RelativeLayout {
     private var currentAlpha = 0f
     //    private var compassNeedle: ImageView? = null
 
-//    constructor(context: Context) : super(context) {
+    constructor(context: Context) : super(context) {
 //        Log.d(TAG, "CompassView(context) called")
 //
 //        binding = ActivityMainBinding.inflate(LayoutInflater.from(context), this, true)
@@ -83,7 +85,7 @@ class FanPowerView : RelativeLayout {
 ////            binding = ActivityMainBinding.inflate(inflater);
 //        //  this.activity = activity
 //        Log.d(TAG, "Inflation started from constructor.")
-//    }
+    }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         Log.d(TAG, "CompassView(context, attrs) called")
@@ -96,7 +98,11 @@ class FanPowerView : RelativeLayout {
         publisherId: Int,
         publisherToken: String,
         shareUrl: String,
-        fragmentManager : FragmentManager
+        fragmentManager : FragmentManager,
+        topMargin: Float,
+        bottomMargin : Float,
+        widgetHeight : Int,
+        webView : WebView
     ) {
       //  this.activity = Utilities.getActivity(this)
      //   this.context = context
@@ -106,6 +112,10 @@ class FanPowerView : RelativeLayout {
         this.shareUrl = shareUrl
         this.publisherToken = publisherToken
         this.fragmentManager = fragmentManager
+        this.topMarginInScrollView = topMargin
+        this.bottomMarginInScrollView = bottomMargin
+        this.widgetHeight = widgetHeight
+        this.webView = webView
 
         SharedPrefs.Utils.saveAdminToken(context, publisherToken)
         SharedPrefs.Utils.savePublisherId(context, publisherId)
@@ -116,17 +126,48 @@ class FanPowerView : RelativeLayout {
 
         Utilities.getActivity(this)?.getWindow()?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
+
+
 //        if(SharedPrefs.Utils.getIsFirstRun(context)){
 //            binding.popupBg.visibility = VISIBLE
 //        }else{
 //            binding.popupBg.visibility = GONE
 //        }
 
+        setUpWidgetMargins()
         setUpBtns()
         //    setupViewPager()
         setUpApis()
 
 
+    }
+
+    private fun setUpWidgetMargins(){
+        Log.i(TAG, "setUpWidgetMargins: scrollview height " + (topMarginInScrollView + bottomMarginInScrollView + widgetHeight))
+
+ //       binding.topLayout.layoutParams.width = LayoutParams.MATCH_PARENT
+       binding.baseLayout.layoutParams.height = (topMarginInScrollView + bottomMarginInScrollView + widgetHeight).toInt()
+
+   //     binding.scrollView.isEnabled = false
+
+
+        binding.mainWidgetView.translationX = 0f
+        binding.mainWidgetView.translationY = topMarginInScrollView
+        binding.mainWidgetView.layoutParams.height = widgetHeight
+
+   //     binding.mainWidgetView.translationY = Utilities.pxFromDp(context,topMarginInScrollView)
+//        binding.topLayout.translationZ = 2000f
+//        binding.topLayout.elevation = 2000f
+//
+//
+
+
+//        (binding.topLayout.getParent() as View).requestLayout()
+//        binding.topLayout.bringToFront()
+//        binding.topLayout.invalidate();
+
+
+   //     binding.mainWidgetView.layoutParams.height = widgetHeight.toInt()
     }
 
     private fun setUpBtns() {
@@ -375,7 +416,7 @@ class FanPowerView : RelativeLayout {
                         hasUserPickedArray.set(index, true)
                     }
                 }
-            });
+            },webView);
 
             frag.arguments = bundle
 

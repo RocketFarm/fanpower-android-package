@@ -62,7 +62,6 @@ class ApiManager {
                     call: Call<IPAddressResponse?>,
                     response: Response<IPAddressResponse?>
                 ) {
-
                     var ipAddressResponse = response.body()
                     if (ipAddressResponse != null) {
                         if (ipAddressResponse.error != null) { // ip address is invalid
@@ -264,7 +263,7 @@ class ApiManager {
         fun createFanPick(
             propId: String,context: Activity,
             successFailureCallback: SuccessFailureCallback,
-            pickId: String
+            pickId: String,pickTitle: String
         ) {
 
             var fanPickBody = FanPickBody()
@@ -272,14 +271,17 @@ class ApiManager {
                 SharedPrefs.Utils.getIPAddress(context, IPAddressResponse::class.java)
 //            var proposition = Proposition()
 
-
             fanPickBody.pick_id = pickId;
             fanPickBody.prop_id = propId
-            fanPickBody.publisher_id = SharedPrefs.Utils.getPublisherToken(context).toString()
-            fanPickBody.fan_id = SharedPrefs.Utils.getFanId(context).toString()
             fanPickBody.source_url = SharedPrefs.Utils.getSourceUrl(context).toString()
+            fanPickBody.publisher_id = SharedPrefs.Utils.getPublisherId(context).toString()!!
             fanPickBody.proposition = Proposition()
             fanPickBody.proposition.id = propId
+            fanPickBody.fan_id = SharedPrefs.Utils.getFanId(context).toString()
+
+            fanPickBody.pick = PickCreateParam(pickTitle)
+            fanPickBody.publisherInfo = PublisherInfo("PickUp")
+
 
             if (ipAddressResponse != null) {
                 fanPickBody.ip_address = ipAddressResponse.ipAddress

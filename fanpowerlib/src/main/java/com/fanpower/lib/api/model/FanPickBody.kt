@@ -10,6 +10,8 @@ class FanPickBody {
     lateinit var ip_address : String
     lateinit var fanCity : String
     lateinit var proposition : Proposition
+    lateinit var pick : PickCreateParam
+    lateinit var publisherInfo: PublisherInfo
     lateinit var fanState : String
     lateinit var fanCountry : String
     lateinit var fanZipCode : String

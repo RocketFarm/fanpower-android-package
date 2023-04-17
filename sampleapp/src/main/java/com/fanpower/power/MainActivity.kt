@@ -13,11 +13,13 @@ class MainActivity : AppCompatActivity() {
 
         var fanPowerView = findViewById<FanPowerView>(R.id.fanPowerView)
 
-        fanPowerView.initView("your-tokenForJwtRequest",
-            0, // your-publisherId
-            "your-publisherToken",
-            "your-shareUrl",
-            supportFragmentManager)
+//        fanPowerView.initView("your-tokenForJwtRequest",
+//            0, // your-publisherId
+//            "your-publisherToken",
+//            "your-shareUrl",
+//            supportFragmentManager)
+
+
 
 
     }

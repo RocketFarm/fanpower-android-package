@@ -2,17 +2,23 @@ package com.fanpower.lib.ui.fragment
 
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.webkit.WebView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,20 +36,14 @@ import com.fanpower.lib.utils.Constants.Generic.PrePickAdId
 import com.fanpower.lib.utils.Constants.Generic.VerifyAdId
 import com.fanpower.lib.utils.SharedPrefs
 import com.fanpower.lib.utils.Utilities
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
 import okhttp3.ResponseBody
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
-import org.json.JSONStringer
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 
-class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fragment() {
+class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback,webView: WebView) : Fragment() {
 
     private var emailForVerification = ""
     private var phoneNumberForVerification = ""
@@ -52,14 +52,24 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
 
     private lateinit var binding: FragmentQuestionsBinding
 
+    private lateinit var webView: WebView
+
     var view_: View? = null
 
     lateinit var timer: CountDownTimer
 
     lateinit var prop: Prop
 
+     var isEditing = false
+
+
     var enterCodeMode = false
     var isEmailMode = false
+    var selectedPickId = ""
+    var selectedPickTitle = ""
+
+//    var scrollX =0
+//    var scrollY = 0;
 
     lateinit var adapter : AnswerListAdapter
 
@@ -71,6 +81,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
 
     init {
         this.onsucessCallback = onsucessCallback
+        this.webView = webView
     }
 
     override fun onCreateView(
@@ -94,6 +105,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
         return view_
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun setUpView() {
         getProps()
 
@@ -115,35 +127,86 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
 
         binding.editTextCarrierNumber.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
+                isEditing = true
             }
 
             override fun afterTextChanged(editable: Editable?) {
+                Log.i(TAG, "afterTextChanged: editable " + editable)
                 if (editable.isNullOrEmpty()) {
                     binding.sendBtn.setBackgroundResource(R.drawable.send_disabled)
                 } else {
                     binding.sendBtn.setBackgroundResource(R.drawable.send_selected)
                 }
+
+                if(webView != null)
+                     webView.clearFocus()
+            }
+        })
+
+//
+//        webView.setOnScrollChangeListener { view, scrollX, scrollY, oldScrollX, oldScrollY ->
+//
+//        }
+
+//        webView.setOnTouchListener(View.OnTouchListener { view, motionEvent -> // your code here....
+//            Log.i(TAG, "setUpView: on touch listener webview")
+//            if(isEditing){
+//                Log.i(TAG, "setUpView: is editext visible")
+//                webView.clearFocus()
+//                isEditing = false
+//                true
+//            }else {
+//                false
+//            }
+//        })
+
+//        binding.editTextCarrierNumber.setOnClickListener {
+//
+//        }
+
+//        binding.editTextCarrierNumber.setOnTouchListener(View.OnTouchListener { view, motionEvent -> // your code here....
+//            Log.i(TAG, "setUpView: on touch listener edittext")
+//
+//            false
+//        })
+
+        binding.editTextCarrierNumber.setOnFocusChangeListener(OnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                Log.d(TAG, "edittext : Focused Now!")
+
+                Utilities.showKeyboard(requireActivity())
+                webView.clearFocus()
+
+
+            }else{
+                Log.i(TAG, "edittext :  setUpView: not focused")
             }
         })
 
      //   Log.i(TAG, "setUpView: answers " + prop.picks.size)
 
         if(prop.picks != null) {
-             adapter = AnswerListAdapter(prop.picks, object : OnClickCallBack {
+            var  picksForAdapter : ArrayList<PickForAdapter> = ArrayList<PickForAdapter>()
+            for(x in prop.picks){
+                var pick = PickForAdapter(x,false)
+                picksForAdapter.add(pick)
+            }
+
+             adapter = AnswerListAdapter(picksForAdapter, object : OnClickCallBack {
                 override fun onClick(pick: Pick) {
 
                     if (SharedPrefs.Utils.getFanId(requireActivity()).isNullOrEmpty()) {
-                        userChooseAPick(pick.id, VerifyAdId)
+                        userChooseAPick(pick.id, VerifyAdId,pick.title)
                         onsucessCallback.disableScroll()
                         binding.verifyIdentityLayout.visibility = View.VISIBLE
 
                     }else{
                         onsucessCallback.userPicked()
-                        userChooseAPick(pick.id, PostPickAdId)
+                        userChooseAPick(pick.id, PostPickAdId,pick.title)
                         adapter.setAnswerModeView(true)
                     }
                     Log.i(TAG, "onClick: ")
@@ -235,7 +298,6 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
                     if(lastItemPosition + 1 != prop.picks.size){
                         binding.bottomScrollIndicator.visibility = View.VISIBLE
                     }
-
                 }
             }
         })
@@ -244,13 +306,11 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
     }
 
     private fun sendEmailValidation() {
-
         binding.progressBar.visibility = View.VISIBLE
 
         var email = binding.editTextCarrierNumber.text.toString().trim()
         var emailValidateBody = EmailValidateBody()
         emailValidateBody.email = email
-
 
         val responseEmailValidateBody: Call<String> =
             ApiFactory.getInstance()!!.validateEmail(SharedPrefs.Utils.getPublisherToken(activity),emailValidateBody)
@@ -267,8 +327,6 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
                 }else{
                     Toast.makeText(activity,"Invalid Email",Toast.LENGTH_SHORT).show()
                 }
-
-
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
@@ -306,25 +364,28 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
         })
     }
 
-    private fun userChooseAPick(pickId : String,verifyAdId : Int) {
-        createFanPick(pickId)
+    private fun userChooseAPick(pickId : String,verifyAdId : Int,pickTitle: String) {
+        selectedPickId = pickId
+        selectedPickTitle = pickTitle
+        if(!SharedPrefs.Utils.getFanId(context).isNullOrEmpty()) {
+
+            createFanPick(pickId,selectedPickTitle)
+        }
         getPublicAdsApi(verifyAdId)
     }
 
-   private fun createFanPick(pickIdStr: String){
+   private fun createFanPick(pickIdStr: String,pickTitle: String){
         ApiManager.createFanPick(prop.id,requireActivity(),object : SuccessFailureCallback{
             override fun onSuccess() {
-
             }
-
             override fun onFailure(messageResponse: MessageResponse) {
-
             }
-        },pickIdStr)
+        },pickIdStr,pickTitle)
     }
 
     private fun hideVerificationPopUp(){
         resetTimer()
+
         onsucessCallback.enableScroll()
         binding.verifyIdentityLayout.visibility = View.GONE
         adapter.setAnswerModeView(true)
@@ -339,9 +400,8 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
             binding.editTextCarrierNumber.setHint(R.string.edittext_hint_phone)
             binding.editTextCarrierNumber.setText("")
             binding.resendCodeText.setText("or use your email address")
-            binding.editTextCarrierNumber.inputType = InputType.TYPE_CLASS_PHONE
+            binding.editTextCarrierNumber.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         } else { // change to email view
-
             binding.countryCodePicker.visibility = View.GONE
             binding.editTextCarrierNumber.setHint(R.string.edittext_hint_email)
             binding.editTextCarrierNumber.setText("")
@@ -499,6 +559,7 @@ class QuestionsFragment(onsucessCallback : VerificationPopUpShownCallback) : Fra
            //     SharedPrefs.Utils.saveIsUserVerified(requireActivity(),true)
 
                 hideVerificationPopUp()
+                createFanPick(selectedPickId,selectedPickTitle)
                 getFanPicks()
 
                 val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager?

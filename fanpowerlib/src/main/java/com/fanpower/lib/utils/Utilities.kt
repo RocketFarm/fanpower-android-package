@@ -14,6 +14,8 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import com.fanpower.lib.api.model.Publisher
 import java.net.Inet4Address
 import java.net.NetworkInterface
@@ -182,7 +184,25 @@ class Utilities {
             v.background = shape
         }
 
+        fun pxFromDp(context: Context, dp: Float): Float {
+            return dp * context.resources.displayMetrics.density
+        }
+
+        fun showKeyboard(mEtSearch: EditText, context: Context) {
+            mEtSearch.requestFocus()
+            val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+        }
+
+        public fun showKeyboard(activity: Activity) {
+            val view = activity.currentFocus
+            val methodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            assert(view != null)
+            methodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
+
     }
+
 
 
 

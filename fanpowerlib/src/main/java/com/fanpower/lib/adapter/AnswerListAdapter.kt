@@ -3,6 +3,7 @@ package com.fanpower.lib.adapter
 import android.app.Activity
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,12 +18,13 @@ import com.fanpower.lib.R
 
 
 import com.fanpower.lib.api.model.Pick
+import com.fanpower.lib.api.model.PickForAdapter
 import com.fanpower.lib.interfaces.OnClickCallBack
 import com.fanpower.lib.utils.SharedPrefs
 import com.fanpower.lib.utils.Utilities
 
 class AnswerListAdapter(
-    private val mList: ArrayList<Pick>,
+    private val mList: ArrayList<PickForAdapter>,
     private val onClickCallBack: OnClickCallBack,
     activity: Activity
 ) : RecyclerView.Adapter<AnswerListAdapter.ViewHolder>() {
@@ -33,6 +35,8 @@ class AnswerListAdapter(
     var activity: Activity
     var selectedIndex: Int = -1
     var mainViewWidth = 0
+
+
 
     // create new views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -59,7 +63,7 @@ class AnswerListAdapter(
         val itemsViewModel = mList[position]
         val onClickCallBack = onClickCallBack
 
-        val intPartPercentage = itemsViewModel.pick_popularity.toInt()
+        val intPartPercentage = itemsViewModel.pick.pick_popularity.toInt()
 
         val percString = intPartPercentage.toString().plus("%")
         holder.percentageText.setText(percString)
@@ -83,14 +87,19 @@ class AnswerListAdapter(
 
         if(answerMode) {
             holder.percentageView.post {
-                holder.percentageView.animate()
-                    .translationX(((holder.percentageView.width.toFloat() / 100f) * itemsViewModel.pick_popularity.toFloat()) - holder.percentageView.width.toFloat())
-                    .setDuration(500)
-
+                if(!itemsViewModel.hasDoneAnimation) {
+                    Log.i(TAG, "onBindViewHolder: in animation item " + position)
+                    holder.percentageView.animate()
+                        .translationX(((holder.percentageView.width.toFloat() / 100f) * itemsViewModel.pick.pick_popularity.toFloat()) - holder.percentageView.width.toFloat())
+                        .setDuration(800)
+                }else{
+                    Log.i(TAG, "onBindViewHolder: without animation item " + position)
+                   // holder.percentageView.clearAnimation().translationX = ((holder.percentageView.width.toFloat() / 100f) * itemsViewModel.pick.pick_popularity.toFloat()) - holder.percentageView.width.toFloat()
+                    holder.percentageView.animate()   .translationX(((holder.percentageView.width.toFloat() / 100f) * itemsViewModel.pick.pick_popularity.toFloat()) - holder.percentageView.width.toFloat())
+                        .setDuration(0)
+                }
             }
         }
-
-
 
         Log.i(TAG, "onBindViewHolder: answer mode  " + answerMode)
 
@@ -101,7 +110,7 @@ class AnswerListAdapter(
 
             if (position == selectedIndex) {
                 holder.percentageView.setBackgroundColor(SharedPrefs.Utils.getSecondaryColor(activity))
-        //        holder.main.setBackgroundResource(R.drawable.yellow_rounded_not_filled)
+         //        holder.main.setBackgroundResource(R.drawable.yellow_rounded_not_filled)
                 Utilities.getPickerStrokeBackground(holder.main,0,SharedPrefs.Utils.getPrimaryColor(activity))
 
                 holder.textView.setTextColor(SharedPrefs.Utils.getPrimaryColor(activity))
@@ -129,12 +138,21 @@ class AnswerListAdapter(
         }
 
         // sets the text to the textview from our itemHolder class
-        holder.textView.text = itemsViewModel.display_title
+        holder.textView.text = itemsViewModel.pick.display_title
 
         holder.main.setOnClickListener {
             if(selectedIndex == -1) {
-                onClickCallBack.onClick(itemsViewModel)
+                onClickCallBack.onClick(itemsViewModel.pick)
                 selectedIndex = position
+
+                Handler().postDelayed({
+                    for(x in mList){
+                        Log.i(TAG, "onBindViewHolder: in delay")
+                        x.hasDoneAnimation= true
+                    }
+                },1000)
+
+
             }
 
 
@@ -143,8 +161,9 @@ class AnswerListAdapter(
 //            holder.percentageView.startAnimation(animation)
 
         }
-
     }
+
+
 
     // return the number of the items in the list
     override fun getItemCount(): Int {
